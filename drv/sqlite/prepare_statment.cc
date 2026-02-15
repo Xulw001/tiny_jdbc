@@ -132,7 +132,6 @@ void SqlitePreparedStatement::ClearBatch() { batch_params_.clear(); }
  */
 void SqlitePreparedStatement::ExecuteBatch() {
     while (batch_params_.size() > 1) {
-        auto& param = batch_params_.front();
         Bind(batch_params_.front());
         if (stmt_.Step() != SQLITE_DONE) {
             conn_.Error();
