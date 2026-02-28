@@ -1,3 +1,4 @@
 [submodule "tiny_reflect"]
 	path = tiny_reflect
 	url = https://github.com/Xulw001/tiny_reflect.git
+	tag = v0.1.1
