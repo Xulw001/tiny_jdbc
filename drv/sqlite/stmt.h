@@ -38,7 +38,7 @@ class SqliteStmt {
      * @brief Constructor.
      * @param stmt The sqlite3_stmt object to be wrapped.
      */
-    explicit SqliteStmt::SqliteStmt(sqlite3_stmt* stmt)
+    explicit SqliteStmt(sqlite3_stmt* stmt)
         : stmt_(stmt, sqlite3_finalize) {}
 
     SqliteStmt(const SqliteStmt&) = delete;

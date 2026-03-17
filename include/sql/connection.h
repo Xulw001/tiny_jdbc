@@ -87,7 +87,7 @@ class ConnectionBase {
      *
      * @param savepoint The savepoint to roll back to.
      */
-    virtual void Rollback(Savepoint savepoint) = 0;
+    virtual void Rollback(Savepoint& savepoint) = 0;
 
     /**
      * @brief Roll back the current transaction.
@@ -104,7 +104,7 @@ class ConnectionBase {
      *
      * @param savepoint The savepoint to release.
      */
-    virtual void ReleaseSavepoint(Savepoint savepoint) = 0;
+    virtual void ReleaseSavepoint(Savepoint& savepoint) = 0;
 
     /**
      * @brief Create a savepoint.

@@ -41,8 +41,8 @@ class SqliteConnection : public ConnectionBase {
     virtual void Commit() override;
     virtual void Rollback() override;
 
-    virtual void Rollback(Savepoint savepoint) override;
-    virtual void ReleaseSavepoint(Savepoint savepoint) override;
+    virtual void Rollback(Savepoint& savepoint) override;
+    virtual void ReleaseSavepoint(Savepoint& savepoint) override;
     virtual Savepoint SetSavepoint(const std::string& name) override;
 
     void Error();
