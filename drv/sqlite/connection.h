@@ -48,8 +48,7 @@ class SqliteConnection : public ConnectionBase {
     void Error();
 
    private:
-    void BeginTransaction();
-    void Reset();
+    void EnsureAutoCommit();
 
    private:
     SqliteDB db_;              ///< The database connection

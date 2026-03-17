@@ -27,11 +27,14 @@ ResultSet& SqlitePreparedStatement::ExecuteQuery() {
  * bound with parameters using the Set<type> functions.
  */
 void SqlitePreparedStatement::ExecuteUpdate() {
-    Bind(batch_params_.back());
-    if (stmt_.Step() != SQLITE_DONE) {
-        conn_.Error();
-    }
-    conn_.Reset();
+    do {
+        Bind(batch_params_.back());
+        if (stmt_.Step() != SQLITE_DONE) {
+            break;
+        }
+    } while (false);
+    conn_.EnsureAutoCommit();
+    conn_.Error();
     batch_params_.pop_back();
 }
 
@@ -134,11 +137,12 @@ void SqlitePreparedStatement::ExecuteBatch() {
     while (batch_params_.size() > 1) {
         Bind(batch_params_.front());
         if (stmt_.Step() != SQLITE_DONE) {
-            conn_.Error();
+            break;
         }
         batch_params_.pop_front();
     }
-    conn_.Reset();
+    conn_.EnsureAutoCommit();
+    conn_.Error();
 }
 
 /**

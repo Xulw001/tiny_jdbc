@@ -27,7 +27,7 @@ ResultSet& SqliteStatement::ExecuteQuery(const std::string& sql) {
  */
 void SqliteStatement::ExecuteUpdate(const std::string& sql) {
     conn_.db_.Execute(sql.c_str());
-    conn_.Reset();
+    conn_.EnsureAutoCommit();
 }
 
 /**
@@ -53,7 +53,7 @@ void SqliteStatement::ExecuteBatch() {
     for (auto& sql : batch_sqls_) {
         conn_.db_.Execute(sql.c_str());
     }
-    conn_.Reset();
+    conn_.EnsureAutoCommit();
 }
 
 /**

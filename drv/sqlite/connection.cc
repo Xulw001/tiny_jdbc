@@ -21,7 +21,6 @@ SqliteConnection::SqliteConnection(const char* path, const char* params)
     if (params) {
         db_.Execute(params);
     }
-    BeginTransaction();
 }
 
 /**
@@ -63,7 +62,9 @@ void SqliteConnection::set_auto_commit(bool auto_commit) {
 
     auto_commit_ = auto_commit;
     if (auto_commit_) {  // enable autocommit
-        Reset();
+        db_.Execute("commit;");
+    } else {
+        db_.Execute("begin;");
     }
 }
 
@@ -77,7 +78,7 @@ void SqliteConnection::set_auto_commit(bool auto_commit) {
  */
 void SqliteConnection::Commit() {
     if (auto_commit_) throw SQLException("database in auto-commit mode");
-    db_.Execute("commit;");
+    db_.Execute("commit;begin;");
 }
 
 /**
@@ -89,7 +90,7 @@ void SqliteConnection::Commit() {
  */
 void SqliteConnection::Rollback() {
     if (auto_commit_) throw SQLException("database in auto-commit mode");
-    db_.Execute("rollback;");
+    db_.Execute("rollback;begin;");
 }
 
 /**
@@ -101,7 +102,7 @@ void SqliteConnection::Rollback() {
  * @param savepoint The savepoint to rollback to.
  * @throws SQLException if the database is in auto-commit mode.
  */
-void SqliteConnection::Rollback(Savepoint savepoint) {
+void SqliteConnection::Rollback(Savepoint& savepoint) {
     if (auto_commit_) throw SQLException("database in auto-commit mode");
     const std::string sql = "rollback to savepoint " + savepoint->name() + ";";
     db_.Execute(sql.c_str());
@@ -116,7 +117,7 @@ void SqliteConnection::Rollback(Savepoint savepoint) {
  * @param savepoint The savepoint to release.
  * @throws SQLException if the database is in auto-commit mode.
  */
-void SqliteConnection::ReleaseSavepoint(Savepoint savepoint) {
+void SqliteConnection::ReleaseSavepoint(Savepoint& savepoint) {
     if (auto_commit_) throw SQLException("database in auto-commit mode");
     const std::string sql = "release savepoint " + savepoint->name() + ";";
     db_.Execute(sql.c_str());
@@ -141,22 +142,13 @@ Savepoint SqliteConnection::SetSavepoint(const std::string& name) {
 }
 
 /**
- * @brief Begin a new transaction.
+ * @brief Ensure that the connection is in auto-commit mode.
  *
- * This method starts a new transaction by executing the "begin" statement.
+ * This method ensures that the connection is in auto-commit mode,
+ * committing any pending transactions.
  */
-void SqliteConnection::BeginTransaction() { db_.Execute("begin;"); }
-
-/**
- * @brief Reset the connection to its original state.
- *
- * If the auto commit status is true, this method will commit the current
- * transaction and start a new one. Otherwise, it does nothing.
- */
-void SqliteConnection::Reset() {
-    if (auto_commit_) {
-        db_.Execute("commit;begin;");
-    }
+void SqliteConnection::EnsureAutoCommit() {
+    if (auto_commit_) db_.Execute("begin;commit;");
 }
 
 void SqliteConnection::Error() { db_.Error(); }
