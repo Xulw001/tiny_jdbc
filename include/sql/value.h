@@ -1,9 +1,9 @@
 /**
  * @file value.h
  * @author xulw (nevermore.xulw@hotmail.com)
- * @brief This file defines the value class for SQL operations
- * @version 0.1
- * @date 2026-02-14
+ * @brief SQL value types and blob handling utilities
+ * @version 0.2
+ * @date 2026-03-01
  *
  * @copyright Copyright (c) 2026
  */
@@ -14,33 +14,33 @@
 
 #include <memory>
 
-#include "type/boolean.h"
-#include "type/decimal.h"
-#include "type/integer.h"
-#include "type/text.h"
+#include "constructor.h"
 
 namespace sql {
-
-enum class ValueType { NULLVAL = 0, INTEGER, REAL, TEXT, BLOB };
-
-using reflect::Boolean;
-using reflect::Decimal;
-using reflect::Integer;
-using reflect::ObjectInternal;
-using reflect::Text;
+/**
+ * @enum ValueType
+ * @brief SQL value types
+ * @details Represents the different types of values supported in SQL
+ */
+enum class ValueType {
+    TYPE_NULL = 0,  ///< NULL value
+    TYPE_INTEGER,   ///< Integer value
+    TYPE_REAL,      ///< Real/floating-point value
+    TYPE_TEXT,      ///< Text string value
+    TYPE_BLOB       ///< Binary blob value
+};
 
 /**
  * @struct Blob
- * @brief A class that represents a blob value in SQL operations.
- *
- * A blob value is a binary large object that stores data in a binary format.
+ * @brief Binary blob value
+ * @details Manages binary blob data with proper memory allocation and access
  */
-struct Blob : public ObjectInternal {
+struct Blob : public reflect::Constructible<Blob> {
    public:
     /**
-     * @brief Constructs a Blob object from a void pointer and its size.
-     * @param[in] v The pointer to the data.
-     * @param[in] n The size of the data in bytes.
+     * @brief Construct a new Blob object
+     * @param v Pointer to the blob data
+     * @param n Size of the blob data in bytes
      */
     explicit Blob(const void* v, int n) : size_(n + 1) {
         blob_.reset(new uint8_t[size_]);
@@ -48,21 +48,21 @@ struct Blob : public ObjectInternal {
     }
 
     /**
-     * @brief Gets the size of the blob value in bytes.
-     * @return The size of the blob value.
+     * @brief Get the size of the blob
+     * @return Size of the blob in bytes
      */
     int size() const { return size_; }
 
     /**
-     * @brief Gets a pointer to the data of the blob value.
-     * @return A pointer to the data of the blob value.
+     * @brief Get a pointer to the blob data
+     * @return Pointer to the blob's data buffer
      */
     void* ptr() const { return blob_.get(); }
 
    private:
-    int size_;  ///< The size of the blob value in bytes.
-    std::shared_ptr<uint8_t>
-        blob_;  ///< A shared pointer to the data of the blob value.
+    int size_;  ///< Size of the blob value in bytes
+    std::shared_ptr<uint8_t[]>
+        blob_;  ///< Shared pointer to the blob's data buffer
 };
 }  // namespace sql
 

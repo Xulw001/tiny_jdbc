@@ -1,8 +1,8 @@
 /**
  * @file statement.h
  * @author xulw (nevermore.xulw@hotmail.com)
- * @brief This file defines the Statement class
- * @version 0.1
+ * @brief SQL statement interface for executing queries and updates
+ * @version 0.2
  * @date 2026-02-14
  *
  * @copyright Copyright (c) 2026
@@ -13,57 +13,55 @@
 #include "resultset.h"
 
 namespace sql {
-
 /**
- * @brief A base class for SQL statements.
- *
- * This class provides a common interface for various SQL statements, including
- * queries and updates. It is designed to be used by derived classes that
- * provide specific implementations for different database management systems.
- *
- * @see Statement
+ * @class StatementBase
+ * @brief Abstract base class for SQL statements
+ * @details Defines the interface for executing SQL queries and updates
  */
 class StatementBase {
    public:
     virtual ~StatementBase() = default;
+
     /**
-     * @brief Executes a query and returns the result set.
-     *
-     * @param sql The SQL query to be executed.
-     * @return A pointer to the result set.
+     * @brief Execute a SQL query and return a ResultSet
+     * @param sql SQL query string
+     * @return Reference to the result set containing query results
      */
-    virtual ResultSet& ExecuteQuery(const std::string& sql) = 0;
+    virtual ResultSet ExecuteQuery(const std::string& sql) = 0;
+
     /**
-     * @brief Retrieves the result set of the statement.
-     *
-     * This method can be used to retrieve the result set after calling
-     * ExecuteQuery.
-     *
-     * @return A pointer to the result set.
+     * @brief Get the current result set
+     * @return Reference to the current result set
      */
-    virtual ResultSet& GetResultSet() = 0;
+    virtual ResultSet GetResultSet() = 0;
+
     /**
-     * @brief Executes an update statement.
-     *
-     * @param sql The SQL update statement to be executed.
+     * @brief Execute a SQL update statement
+     * @param sql SQL update string
      */
     virtual void ExecuteUpdate(const std::string& sql) = 0;
+
     /**
-     * @brief Adds a SQL statement to the batch.
-     *
-     * @param sql The SQL statement to be added to the batch.
+     * @brief Add a SQL statement to the batch
+     * @param sql SQL statement to add to the batch
      */
     virtual void AddBatch(const std::string& sql) = 0;
+
     /**
-     * @brief Executes the batch of SQL statements.
+     * @brief Execute all statements in the batch
      */
     virtual void ExecuteBatch() = 0;
+
     /**
-     * @brief Clears the batch of SQL statements.
+     * @brief Clear all statements in the batch
      */
     virtual void ClearBatch() = 0;
 };
 
+/**
+ * @typedef Statement
+ * @brief Unique pointer to StatementBase
+ */
 using Statement = std::unique_ptr<StatementBase>;
 }  // namespace sql
 

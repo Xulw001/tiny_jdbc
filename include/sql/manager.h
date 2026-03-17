@@ -1,8 +1,8 @@
 /**
  * @file manager.h
  * @author xulw (nevermore.xulw@hotmail.com)
- * @brief This file defines the DriverManager class
- * @version 0.1
+ * @brief SQL driver manager for connection management
+ * @version 0.2
  * @date 2026-02-14
  *
  * @copyright Copyright (c) 2026
@@ -18,26 +18,16 @@
 #include "platform.h"
 
 namespace sql {
-
 /**
  * @class DriverManager
- *
- * This class is used to manage database connections and drivers. It provides a
- * mechanism for loading drivers and getting connections to the database.
- *
- * @brief A class that provides a way to manage database connections and
- *        drivers.
- * @note The class is a singleton and the only instance of the class can be
- *       retrieved using the GetInstance() method.
+ * @brief SQL driver manager singleton
+ * @details Manages driver loading and connection creation
  */
 class DriverManager {
    public:
     /**
-     * @brief Get the singleton instance of the DriverManager class.
-     *
-     * This method returns the singleton instance of the DriverManager class.
-     *
-     * @return The singleton instance of the DriverManager class.
+     * @brief Get the singleton instance of DriverManager
+     * @return Reference to the singleton instance
      */
     static DriverManager& GetInstance() {
         static DriverManager instance;
@@ -45,15 +35,11 @@ class DriverManager {
     }
 
     /**
-     * @brief Get a connection to the database.
-     *
-     * This method returns a connection to the database using the specified URL,
-     * username, and password.
-     *
-     * @param url The URL of the database.
-     * @param username The username to use for the connection.
-     * @param password The password to use for the connection.
-     * @return A connection object representing the connection to the database.
+     * @brief Create a connection to the database
+     * @param url Database URL
+     * @param username Database username
+     * @param password Database password
+     * @return Database connection object
      */
     static Connection GetConnection(const char* url, const char* username,
                                     const char* password) noexcept {
@@ -62,29 +48,26 @@ class DriverManager {
     }
 
     /**
-     * @brief Load a driver for the database.
-     *
-     * This method loads a driver for the database with the specified name.
-     *
-     * @param drvname The name of the driver to load.
+     * @brief Load a database driver
+     * @param drvname Driver name
+     * @throws SQLException If driver loading fails
      */
     static void LoadDriver(const char* drvname) {
         DriverManager::GetInstance().LoadDriverInternal(drvname);
     }
 
    private:
+    /**
+     * @brief Private constructor for singleton pattern
+     */
     DriverManager() : driver_(nullptr) { ; }
 
     /**
-     * @brief Get a connection to the database.
-     *
-     * This method returns a connection to the database using the specified URL,
-     * username, and password.
-     *
-     * @param url The URL of the database.
-     * @param username The username to use for the connection.
-     * @param password The password to use for the connection.
-     * @return A connection object representing the connection to the database.
+     * @brief Internal method to create a connection
+     * @param url Database URL
+     * @param username Database username
+     * @param password Database password
+     * @return Database connection object
      */
     Connection GetConnectionInternal(const char* url, const char* username,
                                      const char* password) noexcept {
@@ -94,11 +77,9 @@ class DriverManager {
     }
 
     /**
-     * @brief Load a driver for the database.
-     *
-     * This method loads a driver for the database with the specified name.
-     *
-     * @param drvname The name of the driver to load.
+     * @brief Internal method to load a driver
+     * @param drvname Driver name
+     * @throws SQLException If driver loading or initialization fails
      */
     void LoadDriverInternal(const std::string& drvname) {
         std::string driver_name = "./libdrv-" + drvname + SUFFIX;
@@ -116,7 +97,8 @@ class DriverManager {
     }
 
    private:
-    std::unique_ptr<DriverBase> driver_;  ///< driver
+    std::unique_ptr<DriverBase>
+        driver_;  ///< Database driver instanceDatabase driver instance
 };
 }  // namespace sql
 
