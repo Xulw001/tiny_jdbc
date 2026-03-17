@@ -51,9 +51,9 @@ int test_statement_query() {
         auto stmt = conn->CreateStatement();
         auto& rs = stmt->ExecuteQuery("select * from test");
         while (rs->NextRow()) {
-            std::cout << rs->GetInteger(1).to_int64() << ": "
-                      << rs->GetString("name").get() << ", "
-                      << rs->GetDecimal(3).to_double() << std::endl;
+            std::cout << rs->GetLong(1) << ": "
+                      << rs->GetString("name") << ", "
+                      << rs->GetDouble(3) << std::endl;
         }
 
     } catch (const sql::SQLException& e) {
@@ -77,16 +77,16 @@ int test_prepared_statement() {
 
         auto stmt = conn->PrepareStatement(
             "insert into test (name, price) values (?, ?)");
-        stmt->SetString(1, sql::Text("Alice011"));
-        stmt->SetDecimal(2, sql::Decimal(97.00));
+        stmt->SetString(1, "Alice011");
+        stmt->SetDouble(2, 97.00);
         stmt->AddBatch();
 
-        stmt->SetString(1, sql::Text("Alice012"));
-        stmt->SetDecimal(2, sql::Decimal(82.30));
+        stmt->SetString(1, "Alice012");
+        stmt->SetDouble(2, 82.30);
         stmt->AddBatch();
 
-        stmt->SetString(1, sql::Text("Alice013"));
-        stmt->SetDecimal(2, sql::Decimal(91.58));
+        stmt->SetString(1, "Alice013");
+        stmt->SetDouble(2, 91.58);
         stmt->AddBatch();
 
         stmt->ExecuteBatch();
@@ -111,20 +111,20 @@ int test_prepared_query() {
 
         auto query =
             conn->PrepareStatement("select * from test where price > ?");
-        query->SetDecimal(1, sql::Decimal(93.50));
+        query->SetDouble(1, 93.50);
         auto& rs = query->ExecuteQuery();
         while (rs->NextRow()) {
-            std::cout << rs->GetInteger(1).to_int64() << " :"
-                      << rs->GetString("name").get() << ", "
-                      << rs->GetDecimal(3).to_double() << std::endl;
+            std::cout << rs->GetLong(1) << " :"
+                      << rs->GetString("name") << ", "
+                      << rs->GetDouble(3) << std::endl;
         }
 
-        query->SetDecimal(1, sql::Decimal(90.50));
+        query->SetDouble(1, 90.50);
         auto& rs1 = query->ExecuteQuery();
         while (rs1->NextRow()) {
-            std::cout << rs1->GetInteger(1).to_int64() << " :"
-                      << rs1->GetString("name").get() << ", "
-                      << rs1->GetDecimal(3).to_double() << std::endl;
+            std::cout << rs1->GetLong(1) << " :"
+                      << rs1->GetString("name") << ", "
+                      << rs1->GetDouble(3) << std::endl;
         }
     } catch (const sql::SQLException& e) {
         std::cerr << "Error: " << e.what() << std::endl;
@@ -174,7 +174,7 @@ int test_savepoint() {
 
         auto& rs = stmt->ExecuteQuery("select count(*) from test_savepoint");
         if (rs->NextRow()) {
-            std::cout << "count: " << rs->GetInteger(1).to_int64() << std::endl;
+            std::cout << "count: " << rs->GetInt(1) << std::endl;
         }
 
     } catch (const sql::SQLException& e) {
