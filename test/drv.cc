@@ -133,10 +133,62 @@ int test_prepared_query() {
     return 0;
 }
 
+int test_savepoint() {
+    try {
+        sql::DriverManager::LoadDriver("sqlite");
+        sql::Connection conn = sql::DriverManager::GetConnection(
+            "jdbc:sqlite:test.db?cache=shared&journal_mode=WAL", nullptr,
+            nullptr);
+        if (conn == nullptr) {
+            std::cerr << "Failed to get connection" << std::endl;
+            return -1;
+        }
+
+        conn->set_auto_commit(false);
+
+        auto stmt = conn->CreateStatement();
+
+        auto sp1 = conn->SetSavepoint("sp1");
+
+        stmt->ExecuteUpdate(
+            "CREATE TABLE test_savepoint (id INTEGER PRIMARY KEY, name TEXT);");
+
+        stmt->ExecuteUpdate(
+            "INSERT INTO test_savepoint (name) VALUES ('Alice01');");
+
+        auto sp2 = conn->SetSavepoint("sp2");
+
+        stmt->ExecuteUpdate(
+            "INSERT INTO test_savepoint (name) VALUES ('Alice02');");
+
+        stmt->ExecuteUpdate("drop table test_savepoint;");
+
+        conn->Rollback(sp2);
+
+        stmt->ExecuteUpdate(
+            "INSERT INTO test_savepoint (name) VALUES ('Alice03');");
+
+        auto sp3 = conn->SetSavepoint("sp3");
+
+        conn->Commit();
+
+        auto& rs = stmt->ExecuteQuery("select count(*) from test_savepoint");
+        if (rs->NextRow()) {
+            std::cout << "count: " << rs->GetInteger(1).to_int64() << std::endl;
+        }
+
+    } catch (const sql::SQLException& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return -1;
+    }
+    return 0;
+}
+
 int main() {
     test_jdbc_statement();
     test_prepared_statement();
     test_statement_query();
     test_prepared_query();
+    test_savepoint();
     return 0;
 }
