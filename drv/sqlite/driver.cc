@@ -5,17 +5,7 @@
 #include "sql/platform.h"
 
 namespace sql {
-/**
- * @brief Get a connection to the database.
- *
- * This function retrieves a connection to the database using the
- * specified URL, username, and password.
- *
- * @param url The URL of the database.
- * @param username The username to use for the connection.
- * @param password The password to use for the connection.
- * @return A connection object representing the connection to the database.
- */
+
 Connection SqliteDriver::GetConnection(const char* url, const char* username,
                                        const char* password) {
     std::string path, param;
@@ -28,16 +18,6 @@ Connection SqliteDriver::GetConnection(const char* url, const char* username,
     return Connection(new SqliteConnection(path.c_str(), param.c_str()));
 };
 
-/**
- * @brief Parse the URL and extract the path and parameters.
- *
- * This function parses the URL and extracts the path and parameters.
- *
- * @param url The URL of the database.
- * @param path The path to the database.
- * @param params The parameters to the database.
- * @return True if the URL is parsed successfully, false otherwise.
- */
 bool SqliteDriver::ParseUrl(const std::string& url, std::string& path,
                             std::string& params) {
     // jdbc:sqlite:<path>?parm1=value1&param2=value2

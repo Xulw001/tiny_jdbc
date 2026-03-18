@@ -1,9 +1,9 @@
 /**
  * @file savepoint.h
  * @author xulw (nevermore.xulw@hotmail.com)
- * @brief This file defines the SqliteSavepoint class
- * @version 0.1
- * @date 2026-02-14
+ * @brief SQLite implementation of savepoint
+ * @version 0.2
+ * @date 2026-03-14
  *
  * @copyright Copyright (c) 2026
  */
@@ -13,25 +13,24 @@
 #include "sql/savepoint.h"
 
 namespace sql {
-
 /**
- * @brief Savepoint class for SQLite.
- *
- * This class provides an implementation of the SavepointBase class for SQLite.
+ * @class SqliteSavepoint
+ * @brief SQLite implementation of SavepointBase
+ * @details Represents a savepoint in a SQLite transaction
  */
 class SqliteSavepoint : public SavepointBase {
    public:
     /**
-     * @brief Constructor.
-     * @param name The name of the savepoint.
+     * @brief Construct a new SqliteSavepoint object
+     * @param name Savepoint name
      */
     SqliteSavepoint(const std::string& name) : name_(name) { ; }
 
     virtual ~SqliteSavepoint() = default;
 
     /**
-     * @brief Get the name of the savepoint.
-     * @return The name of the savepoint.
+     * @brief Get the name of the savepoint
+     * @return Savepoint name
      */
     virtual const std::string& name() const override { return name_; }
 

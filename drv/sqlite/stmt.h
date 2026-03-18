@@ -1,9 +1,9 @@
 /**
  * @file stmt.h
  * @author xulw (nevermore.xulw@hotmail.com)
- * @brief This file defines the SqliteStmt class
- * @version 0.1
- * @date 2026-02-14
+ * @brief SQLite statement wrapper for prepared statements
+ * @version 0.2
+ * @date 2026-03-14
  *
  * @copyright Copyright (c) 2026
  */
@@ -17,29 +17,25 @@
 #include <unordered_map>
 #include <vector>
 
-#include "pointer.h"
 #include "sql/value.h"
+#include "type/reference.h"
+#include "type/value.h"
 
 namespace sql {
-
-using Value = std::vector<std::pair<ValueType, reflect::Pointer>>;
-
+using namespace reflect;
 /**
  * @class SqliteStmt
- *
- * This class provides some utility functions to work with the sqlite3_stmt
- * object.
- *
- * @brief This class is used to wrap a sqlite3_stmt object.
+ * @brief SQLite statement wrapper
+ * @details Wraps sqlite3_stmt and provides helper methods
+ *          for statement operations
  */
 class SqliteStmt {
    public:
     /**
-     * @brief Constructor.
-     * @param stmt The sqlite3_stmt object to be wrapped.
+     * @brief Construct a new SqliteStmt object
+     * @param stmt SQLite statement handle
      */
-    explicit SqliteStmt(sqlite3_stmt* stmt)
-        : stmt_(stmt, sqlite3_finalize) {}
+    explicit SqliteStmt(sqlite3_stmt* stmt) : stmt_(stmt, sqlite3_finalize) {}
 
     SqliteStmt(const SqliteStmt&) = delete;
     SqliteStmt& operator=(const SqliteStmt&) = delete;
@@ -47,22 +43,66 @@ class SqliteStmt {
     SqliteStmt(SqliteStmt&&) = default;
     SqliteStmt& operator=(SqliteStmt&&) = default;
 
+    /**
+     * @brief Execute the statement step
+     * @return SQLite result code
+     */
     int Step();
-    bool Bind(int index, reflect::ObjectInternal& obj, ValueType type);
-    bool Value(int index, reflect::ObjectInternal& obj, ValueType type);
+
+    /**
+     * @brief Bind a parameter to the statement
+     * @param index Parameter index (1-based)
+     * @param ref Reference to the value to bind
+     * @return True if binding successful, false otherwise
+     */
+    bool BindParameter(int index, Reference ref);
+
+    /**
+     * @brief Get a value from the current row
+     * @param index Column index (0-based)
+     * @param type Expected value type
+     * @return Retrieved value
+     */
+    Value GetValue(int index, ValueType type);
+
+    /**
+     * @brief Update column information
+     */
     void UpdateColumn();
+
+    /**
+     * @brief Get column index by name
+     * @param col_name Column name
+     * @return Column index (0-based), or -1 if not found
+     */
     int GetIndexByName(const std::string& col_name);
+
+    /**
+     * @brief Get the number of parameters to bind
+     * @return Number of parameters
+     */
     int column_bind_count();
+
+    /**
+     * @brief Get the number of columns in the result set
+     * @return Number of columns
+     */
     int column_count() { return col_count_; }
 
    private:
+    /**
+     * @brief Check if the column type matches the expected type
+     * @param col_type SQLite column type
+     * @param type Expected value type
+     */
     void TypeCheck(int col_type, ValueType type);
 
    protected:
     std::unique_ptr<sqlite3_stmt, decltype(&sqlite3_finalize)>
-        stmt_;                                      ///< sqlite3_stmt
-    int col_count_;                                 ///< column count
-    std::unordered_map<std::string, int> col_map_;  ///< column map
+        stmt_;       ///< SQLite statement handle
+    int col_count_;  ///< Number of columns in result set
+    std::unordered_map<std::string, int>
+        col_map_;  ///< Map of column names to indices
 };
 
 }  // namespace sql

@@ -6,16 +6,6 @@
 
 namespace sql {
 
-/**
- * @brief Moves the result set to the next row.
- *
- * This method moves the result set to the next row and returns true if
- * there are more rows to retrieve. If there are no more rows to retrieve,
- * it returns false. If an error occurs while retrieving the next row,
- * it throws an exception.
- *
- * @return True if there are more rows to retrieve, false otherwise.
- */
 bool SqliteResultSet::NextRow() {
     auto rc = stmt_.Step();
     switch (rc) {
@@ -29,142 +19,85 @@ bool SqliteResultSet::NextRow() {
     return false;
 }
 
-/**
- * @brief Retrieves a string value from the current row.
- *
- * This method retrieves a string value from the current row at the
- * specified index and returns it.
- *
- * @param index The index of the column to be retrieved.
- * @return The value at the specified index as a string.
- */
-Text SqliteResultSet::GetString(int index) {
-    Text value("");
-    value_ = stmt_.Value(index - 1, value, ValueType::TEXT);
-    return std::move(value);
+std::string SqliteResultSet::GetString(int index) {
+    auto value = stmt_.GetValue(index - 1, ValueType::TYPE_TEXT);
+    has_value_ = value.HasValue();
+    if (has_value_) {
+        return value.Access().cast<std::string>();
+    }
+    return "";
 }
 
-/**
- * @brief Retrieves a string value from the current row by column name.
- *
- * This method retrieves a string value from the current row by the
- * specified column name and returns it.
- *
- * @param column_name The name of the column to be retrieved.
- * @return The value of the specified column as a string.
- */
-Text SqliteResultSet::GetString(const std::string& column_name) {
+std::string SqliteResultSet::GetString(const std::string& column_name) {
     return std::move(GetString(stmt_.GetIndexByName(column_name) + 1));
 }
 
-/**
- * @brief Retrieves an integer value from the current row.
- *
- * This method retrieves an integer value from the current row at the
- * specified index and returns it.
- *
- * @param index The index of the column to be retrieved.
- * @return The value at the specified index as an integer.
- */
-Integer SqliteResultSet::GetInteger(int index) {
-    Integer value(0);
-    value_ = stmt_.Value(index - 1, value, ValueType::INTEGER);
-    return std::move(value);
+short SqliteResultSet::GetShort(int index) { return (short)GetLong(index); }
+
+short SqliteResultSet::GetShort(const std::string& column_name) {
+    return (short)GetLong(stmt_.GetIndexByName(column_name) + 1);
 }
 
-/**
- * @brief Retrieves an integer value from the current row by column name.
- *
- * This method retrieves an integer value from the current row by the
- * specified column name and returns it.
- *
- * @param column_name The name of the column to be retrieved.
- * @return The value of the specified column as an integer.
- */
-Integer SqliteResultSet::GetInteger(const std::string& column_name) {
-    return std::move(GetInteger(stmt_.GetIndexByName(column_name) + 1));
+int SqliteResultSet::GetInt(int index) { return (int)GetLong(index); }
+
+int SqliteResultSet::GetInt(const std::string& column_name) {
+    return (int)GetLong(stmt_.GetIndexByName(column_name) + 1);
 }
 
-/**
- * @brief Retrieves a decimal value from the current row.
- *
- * This method retrieves a decimal value from the current row at the
- * specified index and returns it.
- *
- * @param index The index of the column to be retrieved.
- * @return The value at the specified index as a decimal.
- */
-Decimal SqliteResultSet::GetDecimal(int index) {
-    Decimal value(0.0);
-    value_ = stmt_.Value(index - 1, value, ValueType::REAL);
-    return std::move(value);
+long long SqliteResultSet::GetLong(int index) {
+    Value value = stmt_.GetValue(index - 1, ValueType::TYPE_INTEGER);
+    has_value_ = value.HasValue();
+    if (has_value_) {
+        return value.Access().cast<long long>();
+    }
+    return 0;
 }
 
-/**
- * @brief Retrieves a decimal value from the current row by column name.
- *
- * This method retrieves a decimal value from the current row by the
- * specified column name and returns it.
- *
- * @param column_name The name of the column to be retrieved.
- * @return The value of the specified column as a decimal.
- */
-Decimal SqliteResultSet::GetDecimal(const std::string& column_name) {
-    return std::move(GetDecimal(stmt_.GetIndexByName(column_name) + 1));
+long long SqliteResultSet::GetLong(const std::string& column_name) {
+    return GetLong(stmt_.GetIndexByName(column_name) + 1);
 }
 
-/**
- * @brief Retrieves a boolean value from the current row.
- *
- * This method retrieves a boolean value from the current row at the
- * specified index and returns it.
- *
- * @param index The index of the column to be retrieved.
- * @return The value at the specified index as a boolean.
- */
-Boolean SqliteResultSet::GetBool(int index) {
-    Boolean value(0);
-    value_ = stmt_.Value(index - 1, value, ValueType::INTEGER);
-    return std::move(value);
+float SqliteResultSet::GetFloat(int index) { return (float)GetDouble(index); }
+
+float SqliteResultSet::GetFloat(const std::string& column_name) {
+    return (float)GetDouble(stmt_.GetIndexByName(column_name) + 1);
 }
 
-/**
- * @brief Retrieves a boolean value from the current row by column name.
- *
- * This method retrieves a boolean value from the current row by the
- * specified column name and returns it.
- *
- * @param column_name The name of the column to be retrieved.
- * @return The value of the specified column as a boolean.
- */
-Boolean SqliteResultSet::GetBool(const std::string& column_name) {
-    return std::move(GetBool(stmt_.GetIndexByName(column_name) + 1));
+double SqliteResultSet::GetDouble(int index) {
+    Value value = stmt_.GetValue(index - 1, ValueType::TYPE_REAL);
+    has_value_ = value.HasValue();
+    if (has_value_) {
+        return value.Access().cast<double>();
+    }
+    return 0.0;
 }
 
-/**
- * @brief Retrieves a blob value from the current row.
- *
- * This method retrieves a blob value from the current row at the
- * specified index and returns it.
- *
- * @param index The index of the column to be retrieved.
- * @return The value at the specified index as a blob.
- */
+double SqliteResultSet::GetDouble(const std::string& column_name) {
+    return GetDouble(stmt_.GetIndexByName(column_name) + 1);
+}
+
+bool SqliteResultSet::GetBoolean(int index) {
+    Value value = stmt_.GetValue(index - 1, ValueType::TYPE_INTEGER);
+    has_value_ = value.HasValue();
+    if (has_value_) {
+        return value.Access().cast<long long>() != 0;
+    }
+    return false;
+}
+
+bool SqliteResultSet::GetBoolean(const std::string& column_name) {
+    return GetBoolean(stmt_.GetIndexByName(column_name) + 1);
+}
+
 Blob SqliteResultSet::GetBlob(int index) {
-    Blob value("", 0);
-    value_ = stmt_.Value(index - 1, value, ValueType::BLOB);
-    return std::move(value);
+    Value value = stmt_.GetValue(index - 1, ValueType::TYPE_BLOB);
+    has_value_ = value.HasValue();
+    if (has_value_) {
+        return value.Access().cast<Blob>();
+    }
+    return Blob("", 0);
 }
 
-/**
- * @brief Retrieves a blob value from the current row by column name.
- *
- * This method retrieves a blob value from the current row by the
- * specified column name and returns it.
- *
- * @param column_name The name of the column to be retrieved.
- * @return The value of the specified column as a blob.
- */
 Blob SqliteResultSet::GetBlob(const std::string& column_name) {
     return std::move(GetBlob(stmt_.GetIndexByName(column_name) + 1));
 }
