@@ -14,8 +14,6 @@
 
 #include <memory>
 
-#include "constructor.h"
-
 namespace sql {
 /**
  * @enum ValueType
@@ -35,7 +33,7 @@ enum class ValueType {
  * @brief Binary blob value
  * @details Manages binary blob data with proper memory allocation and access
  */
-struct Blob : public reflect::Constructible<Blob> {
+struct Blob {
    public:
     /**
      * @brief Construct a new Blob object
