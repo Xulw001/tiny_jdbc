@@ -103,8 +103,7 @@ Value SqliteStmt::GetValue(int index, ValueType type) {
                      (char*)sqlite3_column_text(stmt_.get(), index));
     case SQLITE_NULL:
     default:
-        TypeCheck(SQLITE_NULL, type);
-        return Value(in_place_type_t<std::nullptr_t>{}, nullptr);
+        return Value();
     }
     throw SQLException("invalid data type!");
 }
