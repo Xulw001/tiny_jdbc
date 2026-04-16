@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include "prepared_statment.h"
+#include "prepared_statement.h"
 #include "savepoint.h"
 #include "statement.h"
 

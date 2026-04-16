@@ -13,7 +13,7 @@
 #include <list>
 
 #include "connection.h"
-#include "sql/prepared_statment.h"
+#include "sql/prepared_statement.h"
 #include "stmt.h"
 
 namespace sql {
