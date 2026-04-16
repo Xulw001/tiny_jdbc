@@ -49,7 +49,7 @@ struct Blob {
      * @brief Get the size of the blob
      * @return Size of the blob in bytes
      */
-    int size() const { return size_; }
+    int size() const { return size_ - 1; }
 
     /**
      * @brief Get a pointer to the blob data
